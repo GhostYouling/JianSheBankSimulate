@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'pages/product_detail_page.dart';
 
 class MyFinancePage extends StatefulWidget {
   const MyFinancePage({super.key});
@@ -11,48 +12,103 @@ class _MyFinancePageState extends State<MyFinancePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      backgroundColor: const Color(0xFFF5F5F5),
+      body: Stack(
         children: [
-          // 顶部蓝色区域
-          _buildTopSection(),
-          
-          // 内容区域
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // 交易进行中提示
-                  // _buildTransactionAlert(),
-                  
-                  // 功能按钮区
-                  _buildFunctionButtons(),
-                  
-                  // 视图切换
-                  _buildViewToggle(),
-                  
-                  // 产品列表标题
-                  _buildSectionTitle(),
-                  
-                  // 产品列表
-                  _buildProductList(),
-                  
-                  const SizedBox(height: 20),
+          // Background Gradient (extended)
+          Container(
+            height: 450,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.0, 0.7, 1.0],
+                colors: [
+                  Color(0xFF1565C0), // Blue 800 - darker start
+                  Color(0xFF0D47A1), // Blue 900 - User preferred dark blue
+                  Color(0xFFF5F5F5), // Fade to background
                 ],
               ),
             ),
           ),
+          
+          Column(
+            children: [
+              // 顶部蓝色区域内容
+              _buildTopSection(),
+              
+              // 内容区域
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // 功能按钮区
+                      _buildFunctionButtons(),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // 白色大卡片区域：包含视图切换、标题、产品列表
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            // 视图切换和资产分析
+                            _buildViewToggleAndAnalysis(),
+                            
+                            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                            
+                            // 产品列表标题
+                            _buildSectionTitle(),
+                            
+                            const Divider(height: 1, color: Color(0xFFEEEEEE)),
+                            
+                            // 产品列表
+                            _buildProductList(),
+                          ],
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 80), // Bottom padding for floating button
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          // 客户经理悬浮按钮
+          Positioned(
+            right: 16,
+            bottom: 30, // Adjust based on bottom nav bar height approx
+            child: _buildCustomerManagerButton(),
+          ),
+          
+          // Floating arrow button (Right side middle-ish)
+          // Based on screenshot, there is a small grey arrow button floating or attached.
+          // It seems to be part of the UI overlay or a floating action button for scroll to top/next?
+          // For now, I'll stick to the customer manager button as requested.
         ],
       ),
       bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
-  // 顶部蓝色区域
+  // 顶部蓝色区域 (Only content, background is handled in Stack)
   Widget _buildTopSection() {
     return Container(
-      color: const Color(0xFF0751a6),
       padding: EdgeInsets.only(
-        top: 40,
+        top: MediaQuery.of(context).padding.top + 10,
         bottom: 20,
         left: 20,
         right: 20,
@@ -76,7 +132,7 @@ class _MyFinancePageState extends State<MyFinancePage> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.headset_mic, color: Colors.white),
+                icon: const Icon(Icons.headset_mic_outlined, color: Colors.white),
                 onPressed: () {},
               ),
             ],
@@ -91,43 +147,41 @@ class _MyFinancePageState extends State<MyFinancePage> {
                 '参考总市值(元)',
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.white,
+                  color: Colors.white70,
                 ),
               ),
-              const SizedBox(width: 8),
-              Icon(Icons.remove_red_eye_outlined, color: Colors.white, size: 16),
+              const SizedBox(width: 5),
+              const Icon(Icons.remove_red_eye_outlined, color: Colors.white70, size: 16),
               const Spacer(),
-              Row(
-                children: [
-                  const Text(
-                    '人民币',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  const Text(
-                    '|',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Row(
-                    children: [
-                      const Text(
-                        '全部',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: const Row(
+                  children: [
+                    Text(
+                      '人民币',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
                       ),
-                      Icon(Icons.arrow_drop_down, color: Colors.white),
-                    ],
-                  ),
-                ],
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: Text('|', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                    ),
+                    Text(
+                      '全部',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Icon(Icons.arrow_drop_down, color: Colors.white, size: 16),
+                  ],
+                ),
               ),
             ],
           ),
@@ -138,24 +192,44 @@ class _MyFinancePageState extends State<MyFinancePage> {
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '306,783.57',
+              '364,832.50',
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 36,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
+                fontFamily: 'Roboto', // Assuming a standard font
               ),
             ),
           ),
           
-          const SizedBox(height: 20),
+          const SizedBox(height: 25),
           
-          // 持仓盈亏、份额、累计盈亏
+          // 资产详情网格
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildAssetInfoItem('持仓盈亏(元)', '+5,859.57'),
-              _buildAssetInfoItem('持仓份额(份)', '272562.0300'),
-              _buildAssetInfoItem('累计盈亏(元)', '5,859.57'),
+              // Left Column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildAssetInfoItem('持仓盈亏(元)', '+12,745.50'),
+                    const SizedBox(height: 15),
+                    _buildAssetInfoItem('累计收益(元)', '+14,075.50'),
+                  ],
+                ),
+              ),
+              // Right Column
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildAssetInfoItem('持仓份额(份)', '317989.0350', showInfoIcon: false),
+                    const SizedBox(height: 15),
+                    _buildAssetInfoItem('昨日收益(元)', '-136.60'),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -164,7 +238,7 @@ class _MyFinancePageState extends State<MyFinancePage> {
   }
 
   // 资产信息项
-  Widget _buildAssetInfoItem(String title, String value) {
+  Widget _buildAssetInfoItem(String title, String value, {bool showInfoIcon = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -177,64 +251,48 @@ class _MyFinancePageState extends State<MyFinancePage> {
                 color: Colors.white70,
               ),
             ),
-            const SizedBox(width: 3),
-            Icon(Icons.info_outline, color: Colors.white70, size: 14),
+            if (showInfoIcon) ...[
+              const SizedBox(width: 4),
+              const Icon(Icons.info_outline, color: Colors.white70, size: 14),
+            ],
           ],
         ),
-        const SizedBox(height: 5),
+        const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 18,
             color: Colors.white,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
     );
   }
 
-  // 交易进行中提示
-  Widget _buildTransactionAlert() {
-    return Container(
-      margin: const EdgeInsets.all(15),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade100,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.circle, color: Colors.blue, size: 12),
-          const SizedBox(width: 10),
-          const Text(
-            '当前有1笔交易，进行中',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.blue,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // 功能按钮区
   Widget _buildFunctionButtons() {
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
-      padding: const EdgeInsets.symmetric(vertical: 15),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildFunctionButton(Icons.add, '我的关注'),
-          _buildFunctionButton(Icons.search, '交易查询'),
-          _buildFunctionButton(Icons.description_outlined, '问卷调查'),
-          _buildFunctionButton(Icons.account_balance_wallet, '智富盈'),
+          _buildFunctionButton(Icons.receipt_long_outlined, '交易查询'),
+          _buildFunctionButton(Icons.help_outline, '问卷调查'),
+          _buildFunctionButton(Icons.currency_yen, '零钱理财'), 
+          _buildFunctionButton(Icons.savings_outlined, '智富盈'),
         ],
       ),
     );
@@ -244,66 +302,92 @@ class _MyFinancePageState extends State<MyFinancePage> {
   Widget _buildFunctionButton(IconData icon, String label) {
     return Column(
       children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(25),
-          ),
-          child: Icon(
-            icon,
-            color: Colors.blue,
-            size: 24,
-          ),
+        Icon(
+          icon,
+          color: Colors.black87,
+          size: 28,
         ),
         const SizedBox(height: 8),
         Text(
           label,
           style: const TextStyle(
             fontSize: 12,
+            color: Colors.black87,
           ),
         ),
       ],
     );
   }
 
-  // 视图切换
-  Widget _buildViewToggle() {
+  // 视图切换和资产分析
+  Widget _buildViewToggleAndAnalysis() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            '视图切换',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              const Text(
+                '视图切换',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900, // Very bold
+                  color: Colors.black,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Grid Icon (Four squares)
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      _buildGridDot(),
+                      const SizedBox(width: 2),
+                      _buildGridDot(),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      _buildGridDot(),
+                      const SizedBox(width: 2),
+                      _buildGridDot(),
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
           Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(5),
+              color: const Color(0xFF3B71CA), // Stronger blue
+              borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                  ),
-                  child: Icon(Icons.list, color: Colors.blue),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  child: Icon(Icons.grid_view, color: Colors.grey),
-                ),
-              ],
+            child: const Text(
+              '资产收益分析',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+  
+  Widget _buildGridDot() {
+    return Container(
+      width: 6,
+      height: 6,
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color(0xFF3B71CA), width: 1.5),
+        borderRadius: BorderRadius.circular(1),
       ),
     );
   }
@@ -311,40 +395,30 @@ class _MyFinancePageState extends State<MyFinancePage> {
   // 产品列表标题
   Widget _buildSectionTitle() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           Container(
-            width: 15,
-            height: 15,
-            decoration: BoxDecoration(
-              color: Colors.blue.shade100,
+            width: 8,
+            height: 8,
+            decoration: const BoxDecoration(
+              color: Color(0xFF8AB4F8), // Lighter blue dot
               shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Container(
-                width: 6,
-                height: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
-              ),
             ),
           ),
           const SizedBox(width: 8),
           const Text(
             '全部理财',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Colors.black87,
             ),
           ),
           const Spacer(),
           const Text(
             '参考市值/持仓收益',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               color: Colors.grey,
             ),
           ),
@@ -355,95 +429,118 @@ class _MyFinancePageState extends State<MyFinancePage> {
 
   // 产品列表
   Widget _buildProductList() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        children: [
-          _buildProductItem(
-            '龙鑫固收类最低持有120天（代销建信理财）',
-            '306,783.57',
-            '+5,859.57',
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        _buildProductItem(
+          '龙鑫固收类最低持有120\n天（代销建信理财）',
+          '363,819.61',
+          '+12,732.61',
+          '2009',
+          isFirst: true,
+        ),
+        const Divider(height: 1, indent: 16, endIndent: 16, color: Color(0xFFEEEEEE)),
+        _buildProductItem(
+          '嘉鑫固收最低持有7天第\n9期(代销建信理财)',
+          '1,012.89',
+          '+12.89',
+          '2009',
+          isFirst: false,
+        ),
+      ],
     );
   }
 
   // 产品项
-  Widget _buildProductItem(String name, String value, String profit) {
-    return GestureDetector(
+  Widget _buildProductItem(String name, String value, String profit, String tailNum, {required bool isFirst}) {
+    return InkWell(
       onTap: () {
-        // 点击产品项时跳转到产品详情页
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ProductDetailPage(),
+            builder: (context) => const ProductDetailPage(),
           ),
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 5),
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF333333),
+                        height: 1.5,
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       value,
                       style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Roboto', 
                       ),
                     ),
+                    const SizedBox(height: 4),
                     Text(
                       profit,
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFE53935), // Red color
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'Roboto',
                       ),
                     ),
                   ],
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F0F0), // Light grey background
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    '开放赎回: 工作日 09:00 ~ 17:00',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF757575),
+                    ),
+                  ),
+                ),
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(15),
+                    Text(
+                      '尾号$tailNum',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF333333),
                       ),
-                      child: const Text(
-                        '开放赎回: 工作日 09:00～17:00',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),                  
+                    ),
+                    // Grey arrow if it's there in the screenshot (it seems to be a floating one, but might be associated here)
+                    if (isFirst) ...[ // Assuming the arrow is relevant generally
+                       // The arrow in screenshot is actually a floating one overlaying the list item, 
+                       // but in standard lists it usually implies navigation. 
+                       // I will leave it out as it conflicts with the "floating" arrow description or add it if needed.
+                    ]
                   ],
                 ),
               ],
@@ -451,6 +548,78 @@ class _MyFinancePageState extends State<MyFinancePage> {
           ],
         ),
       ),
+    );
+  }
+
+  // 客户经理悬浮按钮
+  Widget _buildCustomerManagerButton() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Grey floating arrow (as seen in screenshot right edge)
+        Container(
+          margin: const EdgeInsets.only(bottom: 8, right: 0),
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.3),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 16),
+        ),
+        
+        Container(
+          width: 50,
+          height: 60, // Taller to accommodate label
+          child: Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              // Avatar
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  image: const DecorationImage(
+                     // Placeholder for the 3-person avatar
+                     image: AssetImage('assets/icons/app_icon.png'), 
+                     fit: BoxFit.cover,
+                  )
+                ),
+              ),
+              // Label
+              Positioned(
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1976D2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    '客户经理',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 9, 
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -460,6 +629,10 @@ class _MyFinancePageState extends State<MyFinancePage> {
       currentIndex: 1,
       selectedItemColor: const Color(0xFF05408a),
       unselectedItemColor: Colors.grey,
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
+      selectedLabelStyle: const TextStyle(fontSize: 12),
+      unselectedLabelStyle: const TextStyle(fontSize: 12),
       onTap: (index) {
         if (index == 0) {
           Navigator.pop(context);
@@ -467,11 +640,17 @@ class _MyFinancePageState extends State<MyFinancePage> {
       },
       items: const [
         BottomNavigationBarItem(
-          icon: Icon(Icons.account_balance),
+          icon: Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: Icon(Icons.layers_outlined, size: 24),
+          ),
           label: '理财产品',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.bar_chart),
+          icon: Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: Icon(Icons.trending_up, size: 24),
+          ),
           label: '我的理财',
         ),
       ],
@@ -479,683 +658,4 @@ class _MyFinancePageState extends State<MyFinancePage> {
   }
 }
 
-// 修改ProductDetailPage类的定义
-class ProductDetailPage extends StatefulWidget {
-  const ProductDetailPage({Key? key}) : super(key: key);
-  
-  @override
-  _ProductDetailPageState createState() => _ProductDetailPageState();
-}
 
-class _ProductDetailPageState extends State<ProductDetailPage> {
-  final Color mainBlue = const Color(0xFF0751a6);
-  final Color darkBlue = const Color(0xFF05408a);
-  final Color redColor = Colors.red;
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text('持仓详情', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildProductHeader(),
-            _buildAssetInfo(),
-            _buildActionButtons(),
-            _buildNoticeBox(),
-            _buildNetValueChart(),
-            _buildRiskResistance(),
-            _buildAnnualReturns(),
-            _buildRedemptionRules(),
-            _buildProductDescription(),
-            _buildBottomActions(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProductHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '龙鑫固收类最低持有120天（代销建信理财）',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 5),
-          const Text(
-            '2ALDZ0202009A001（代销）建信理财有限责任公司',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAssetInfo() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text(
-                '总资产(元)',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(width: 5),
-              const Icon(Icons.info_outline, size: 12, color: Colors.grey),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  border: Border.all(color: mainBlue),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.remove_red_eye_outlined, size: 12, color: mainBlue),
-                    const SizedBox(width: 4),
-                    Text('隐藏资产', style: TextStyle(fontSize: 12, color: mainBlue)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            '306,783.57',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '累计收益(元)',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    '+5,859.57',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const Text(
-                    '持有份额',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    '272562.0300',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Column(
-                children: [
-                  Icon(Icons.check_box_outlined, color: Colors.grey),
-                  SizedBox(height: 4),
-                  Text('自动申赎', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Column(
-                children: [
-                  Icon(Icons.swap_horiz, color: Colors.grey),
-                  SizedBox(height: 4),
-                  Text('交易记录', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoticeBox() {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text('下个交易日', style: TextStyle(fontSize: 12, color: Colors.grey)),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text('赎回到账时间', style: TextStyle(fontSize: 12, color: Colors.grey)),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Text('可提回日期', style: TextStyle(fontSize: 12, color: Colors.grey)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('· ', style: TextStyle(color: mainBlue, fontWeight: FontWeight.bold)),
-              Expanded(
-                child: const Text(
-                  '本产品仅在交易日可申购，请持T+0天和约定申请日赎回，建议您在03月17日17点前申请，预计03月19日确认交易结果',
-                  style: TextStyle(fontSize: 12, color: Colors.black87),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNetValueChart() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('单位净值', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              const Text('成立以来年化', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('2022-03-26', style: TextStyle(fontSize: 12, color: Colors.grey)),
-              const Text('+ 单位净值1.047200', style: TextStyle(fontSize: 12, color: Colors.grey)),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            height: 150,
-            width: double.infinity,
-            child: CustomPaint(
-              painter: ChartPainter(mainBlue),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('查看近一个月走势 >', style: TextStyle(fontSize: 12, color: mainBlue)),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRiskResistance() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('抗跌能力', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(flex: 2, child: const Text('时间', style: TextStyle(fontSize: 12, color: Colors.grey))),
-                    Expanded(flex: 4, child: const Text('最大回撤比例', style: TextStyle(fontSize: 12, color: Colors.grey))),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _buildResistanceItem('近1个月', '0.33%'),
-                _buildResistanceItem('近3个月', '0.56%'),
-                _buildResistanceItem('近6个月', '0.36%'),
-                _buildResistanceItem('近1年', '0.36%'),
-                Row(
-                  children: [
-                    Expanded(flex: 2, child: Container()),
-                    Expanded(flex: 4, child: const Text('0.00%', style: TextStyle(fontSize: 12, color: Colors.grey))),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResistanceItem(String period, String percentage) {
-    double value = double.parse(percentage.replaceAll('%', '')) / 5;
-    
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Expanded(flex: 2, child: Text(period, style: const TextStyle(fontSize: 12))),
-          Expanded(
-            flex: 4, 
-            child: Row(
-              children: [
-                Text(percentage, style: const TextStyle(fontSize: 12)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: value,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: mainBlue,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAnnualReturns() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: mainBlue, width: 2),
-                  ),
-                ),
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text('年化收益率', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: mainBlue)),
-              ),
-              const SizedBox(width: 16),
-              const Text('波动率', style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.grey)),
-              const SizedBox(width: 16),
-              const Text('特定收益率', style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal, color: Colors.grey)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Text('时间区间', style: TextStyle(fontSize: 12, color: Colors.grey)),
-              const Spacer(),
-              const Text('区间年化收益率', style: TextStyle(fontSize: 12, color: Colors.grey)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _buildAnnualReturnItem('成立以来年化收益率', '(2020/10/27-2023/03/12)', '2.85%'),
-          _buildAnnualReturnItem('2024年最新收益率', '(2024/01/31-2024/02/31)', '3.00%'),
-          _buildAnnualReturnItem('2023年最新收益率', '(2023/01/01-2023/12/31)', '3.15%'),
-          _buildAnnualReturnItem('2022年最新收益率', '(2021/12/31-2022/12/31)', '2.00%'),
-          _buildAnnualReturnItem('2021年最新收益率', '(2020/12/31-2021/12/31)', '3.51%'),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('查看更多走势 >', style: TextStyle(fontSize: 12, color: mainBlue)),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Text(
-              '理财产品过往业绩不代表其未来表现，净值随行情波动，投资需谨慎。理财产品风险为2级（中低风险）理财产品首发于2020/10/27。',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAnnualReturnItem(String title, String period, String rate) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontSize: 12)),
-                const SizedBox(height: 4),
-                Text(period, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-              ],
-            ),
-          ),
-          Text(rate, style: const TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRedemptionRules() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('赎回规则', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          _buildRuleItem('赎回时间', '产品工作日9: 00-17: 00'),
-          _buildRuleItem('赎回金额', '1份起赎'),
-          _buildRuleItem('赎回条件', '无'),
-          _buildRuleItem('赎回限制', '需持有满120天；工作日9:00-17:00申请，预计下个交易日确认申请结果；系统根据申请先后顺序处理赎回申请。（T日）产品当前净值为预估净值'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRuleItem(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 80,
-            child: Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          ),
-          Expanded(
-            child: Text(content, style: const TextStyle(fontSize: 12)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProductDescription() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16.0),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('产品描述', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-              Row(
-                children: [
-                  const Text('协议、净值、公告 >', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomActions() {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                const Text('03/17日 17:00前申请，预计03/19日确认', style: TextStyle(fontSize: 12, color: Colors.grey)),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                const Text('可设置预约时间，指定时间自动赎回 ', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                Text('去看看 >', style: TextStyle(fontSize: 12, color: mainBlue)),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Colors.black12, width: 0.5),
-              ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.star_border, color: Colors.grey, size: 18),
-                      const SizedBox(width: 4),
-                      const Text('收藏', style: TextStyle(fontSize: 14, color: Colors.grey)),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: mainBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                    ),
-                    child: const Text('加购'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 添加一个简单的图表绘制
-class ChartPainter extends CustomPainter {
-  final Color lineColor;
-  
-  ChartPainter(this.lineColor);
-  
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintLine = Paint()
-      ..color = lineColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-      
-    final path = Path();
-    
-    // 图表数据点 (简化版)
-    final points = [
-      Offset(0, size.height * 0.7),
-      Offset(size.width * 0.1, size.height * 0.65),
-      Offset(size.width * 0.2, size.height * 0.6),
-      Offset(size.width * 0.3, size.height * 0.58),
-      Offset(size.width * 0.4, size.height * 0.55),
-      Offset(size.width * 0.5, size.height * 0.5),
-      Offset(size.width * 0.6, size.height * 0.45),
-      Offset(size.width * 0.7, size.height * 0.4),
-      Offset(size.width * 0.8, size.height * 0.35),
-      Offset(size.width * 0.9, size.height * 0.3),
-      Offset(size.width, size.height * 0.25),
-    ];
-    
-    path.moveTo(points[0].dx, points[0].dy);
-    for (var i = 1; i < points.length; i++) {
-      path.lineTo(points[i].dx, points[i].dy);
-    }
-    
-    canvas.drawPath(path, paintLine);
-    
-    // 绘制底部时间轴参考线
-    final paintGridLine = Paint()
-      ..color = Colors.grey.withOpacity(0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.5;
-      
-    canvas.drawLine(Offset(0, size.height), Offset(size.width, size.height), paintGridLine);
-    
-    // 绘制部分刻度
-    const textStyle = TextStyle(color: Colors.grey, fontSize: 10);
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.center,
-    );
-    
-    final labels = ['近1月', '近3月', '近半年', '近1年'];
-    for (var i = 0; i < labels.length; i++) {
-      final x = size.width * (i + 1) / 5;
-      canvas.drawLine(Offset(x, size.height - 5), Offset(x, size.height + 5), paintGridLine);
-      
-      textPainter.text = TextSpan(text: labels[i], style: textStyle);
-      textPainter.layout();
-      textPainter.paint(canvas, Offset(x - textPainter.width / 2, size.height + 10));
-    }
-  }
-  
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-} 

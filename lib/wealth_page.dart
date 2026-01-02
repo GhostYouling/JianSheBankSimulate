@@ -10,13 +10,13 @@ class WealthPage extends StatefulWidget {
 
 class _WealthPageState extends State<WealthPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
@@ -26,44 +26,24 @@ class _WealthPageState extends State<WealthPage> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F9FC), // Light greyish blue background for the body
       body: Column(
         children: [
-          // 顶部背景与搜索
+          // 顶部背景与搜索 + 资产卡片
           _buildTopSection(),
-          
+
           // 主体内容区域
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 合并的功能按钮区域
-                  _buildCombinedFunctionButtons(),
-                  
-                  // 我的关注区域
-                  _buildMyFocusSection(),
-                  
-                  // 财富管理区域
-                  _buildWealthManagementSection(),
-                  
-                  // 财富直击区域
-                  _buildWealthDirectSection(),
-                  
-                  // 零钱投资广告
-                  _buildInvestmentAdSection(),
-                  
-                  // 人人需要四笔钱区域
-                  _buildFourMoneyTypesSection(),
-                  
-                  // 快速入口选项
-                  _buildQuickEntryOptions(),
-                  
-                  // 零钱区域提示
-                  _buildPocketMoneyHintSection(),
-                  
-                  // 产品推荐
-                  _buildProductRecommendation(),
-                  
+                  // 功能按钮网格
+                  _buildGridMenu(),
+
+                  // 财富优选区域
+                  _buildWealthSelectionSection(),
+
                   const SizedBox(height: 20),
                 ],
               ),
@@ -74,123 +54,244 @@ class _WealthPageState extends State<WealthPage> with SingleTickerProviderStateM
     );
   }
 
-  // 顶部区域（包含背景和搜索框）
+  // 顶部区域（包含背景、搜索框、资产卡片）
   Widget _buildTopSection() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            const Color(0xFFF5E6BE),
-            const Color(0xFFF5E6BE).withOpacity(0.8),
+            Color(0xFFFFF5E6), // Light peach/orange top
+            Color(0xFFFFFBF5), // Fading to white/cream
           ],
+          stops: [0.0, 1.0],
         ),
       ),
+      padding: const EdgeInsets.only(bottom: 10),
       child: SafeArea(
         bottom: false,
         child: Column(
           children: [
-            // 搜索框
+            // 搜索栏
             Padding(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
-                      height: 40,
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      height: 36,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.orange.withOpacity(0.1)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Colors.brown, size: 20),
-                          const SizedBox(width: 10),
-                          Text('稳健增值优选',
-                              style: TextStyle(color: Colors.brown.withOpacity(0.7))),
-                          const Spacer(),
-                          const Icon(Icons.mic, color: Colors.brown, size: 20),
+                          Icon(Icons.search, color: Colors.grey[400], size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '花一笔攒一笔',
+                              style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                            ),
+                          ),
+                          Icon(Icons.mic_none, color: Colors.grey[600], size: 20),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 15,
-                    child: Icon(Icons.headset_mic, color: Colors.blue, size: 18),
+                  const SizedBox(width: 12),
+                  // 客服图标
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.headset_mic_outlined, color: Colors.black87, size: 24),
+                      const SizedBox(height: 2),
+                      const Text(
+                        '客服',
+                        style: TextStyle(fontSize: 10, color: Colors.black87),
+                      )
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  const Icon(Icons.add_circle_outline, color: Colors.brown, size: 24),
                 ],
               ),
             ),
-            
-            // 建行龙财富标题和资产信息
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+
+            // 堆叠式资产卡片
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  const Text(
-                    '建行龙财富',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.brown,
+                  // 底层白色卡片 (活钱/理财)
+                  Container(
+                    margin: const EdgeInsets.only(top: 80), // Push down to peek out from bottom
+                    padding: const EdgeInsets.fromLTRB(20, 50, 20, 15), // Top padding accommodates the overlap
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '活钱',
+                                    style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                                  ),
+                                  Text(
+                                    '0.37',
+                                    style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 30),
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '理财',
+                                    style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                                  ),
+                                  Text(
+                                    '104,958.78',
+                                    style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        // 下拉把手
+                        Container(
+                          width: 30,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  Row(
-                    children: [
-                      const Text(
-                        '总资产(元)',
-                        style: TextStyle(
-                          color: Colors.brown,
-                          fontSize: 14,
-                        ),
+
+                  // 上层渐变卡片 (总资产)
+                  Container(
+                    height: 120, // Fixed height for consistency
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          Color(0xFFFFF3E0), // Very light orange
+                          Color(0xFFFFCC80), // Orange 200 equivalent
+                        ],
                       ),
-                      const SizedBox(width: 5),
-                      const Icon(Icons.remove_red_eye_outlined, color: Colors.brown, size: 18),
-                      const Icon(Icons.refresh, color: Colors.brown, size: 18),
-                      const Spacer(),
-                      const Text(
-                        '昨日收益(元)',
-                        style: TextStyle(
-                          color: Colors.brown,
-                          fontSize: 14,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.orange.withOpacity(0.2),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Labels Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  '总资产',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Color(0xFF5D4037),
+                                  ),
+                                ),
+                                const SizedBox(width: 5),
+                                const Icon(Icons.remove_red_eye_outlined,
+                                    size: 16, color: Color(0xFF5D4037)),
+                                const SizedBox(width: 5),
+                                Transform.rotate(
+                                  angle: 3.14 / 2,
+                                  child: const Icon(Icons.sync,
+                                      size: 16, color: Color(0xFF5D4037)),
+                                ),
+                              ],
+                            ),
+                            const Text(
+                              '昨日收益',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF5D4037),
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        // Values Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            const Text(
+                              '¥ 104,959.15',
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4E342E),
+                                fontFamily: 'Roboto',
+                              ),
+                            ),
+                            const Text(
+                              '- ¥ 39.03',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4E342E),
+                                fontFamily: 'Roboto',
+                              ),
+                            ),
+                          ],
+                        ),
+                        
+                        // Bottom Label "建行龙财富" (Centered)
+                         Center(
+                           child: Text(
+                             '建行龙财富', 
+                             style: TextStyle(
+                               color: const Color(0xFF8D6E63).withOpacity(0.5), 
+                               fontSize: 12,
+                               fontWeight: FontWeight.bold
+                             )
+                           ),
+                         ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 5),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      const Text(
-                        '318,727.73',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.brown,
-                        ),
-                      ),
-                      const Spacer(),
-                      const Text(
-                        '-91.86',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.brown,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Icon(Icons.keyboard_arrow_down, color: Colors.brown),
-                  const SizedBox(height: 10),
                 ],
               ),
             ),
@@ -200,666 +301,443 @@ class _WealthPageState extends State<WealthPage> with SingleTickerProviderStateM
     );
   }
 
-  // 合并的功能按钮区域
-  Widget _buildCombinedFunctionButtons() {
+
+  // 功能按钮网格
+  Widget _buildGridMenu() {
+    final List<Map<String, dynamic>> menuItems = [
+      {
+        'title': '存款产品',
+        'icon': Icons.description_outlined, // More document-like
+        'overlayIcon': Icons.attach_money,
+        'overlayColor': const Color(0xFFE1A100),
+        'overlaySize': 14.0,
+        'overlayOffset': const Offset(-6, 6), // Bottom left
+      },
+      {
+        'title': '理财产品',
+        'isCustom': true,
+        'customBuilder': (context) => Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(width: 5, height: 14, margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(border: Border.all(color: Colors.black87, width: 1.5), borderRadius: BorderRadius.circular(1))),
+            Container(width: 5, height: 22, margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE1A100), width: 1.5), borderRadius: BorderRadius.circular(1))),
+            Container(width: 5, height: 10, margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(border: Border.all(color: Colors.black87, width: 1.5), borderRadius: BorderRadius.circular(1))),
+          ],
+        ),
+        'action': 'financial_product',
+      },
+      {
+        'title': '基金投资',
+        'icon': Icons.show_chart_outlined, // Chart specifically
+        'isCustom': true,
+        'customBuilder': (context) => Stack(
+           alignment: Alignment.center,
+           children: [
+             Container(
+               width: 28, height: 22,
+               decoration: BoxDecoration(
+                 border: Border.all(color: Colors.black87, width: 1.5),
+                 borderRadius: BorderRadius.circular(2)
+               ),
+             ),
+             const Positioned(
+               bottom: 6,
+               left: 4,
+               right: 4,
+               child: Icon(Icons.trending_up, size: 18, color: Color(0xFFE1A100)),
+             )
+           ],
+        )
+      },
+      {
+        'title': '保险',
+        'icon': Icons.shield_outlined,
+        'overlayIcon': Icons.check,
+        'overlayColor': const Color(0xFFE1A100),
+        'overlaySize': 14.0,
+        'overlayOffset': const Offset(0, 0),
+      },
+      {
+        'title': '贵金属',
+        'isCustom': true,
+        'customBuilder': (context) => Stack(
+          alignment: Alignment.center,
+          children: [
+             // Two bars stacked
+             Transform.translate(
+               offset: const Offset(-4, 4),
+               child: Transform.rotate(
+                 angle: -0.2,
+                 child: Container(width: 20, height: 10, decoration: BoxDecoration(border: Border.all(color: Colors.black87, width: 1.5), borderRadius: BorderRadius.circular(2))),
+               ),
+             ),
+             Transform.translate(
+               offset: const Offset(2, -2),
+               child: Transform.rotate(
+                  angle: 0.1,
+                  child: Container(width: 20, height: 10, decoration: BoxDecoration(border: Border.all(color: Colors.black87, width: 1.5), borderRadius: BorderRadius.circular(2))),
+               ),
+             ),
+             const Positioned(
+               right: -2,
+               bottom: 0,
+               child: Icon(Icons.star, size: 8, color: Color(0xFFE1A100)), // Star sparkle
+             )
+          ],
+        ),
+      },
+      {
+        'title': '建行严选',
+        'isCustom': true,
+        'customBuilder': (context) => Stack(
+           alignment: Alignment.center,
+           children: [
+             const Icon(Icons.diamond_outlined, size: 30, color: Colors.black87),
+             Positioned(
+               bottom: 0,
+               child: Container(width: 16, height: 2, color: Colors.black87), // Underline
+             ),
+             const Positioned(
+               top: 8,
+               child: Icon(Icons.check, size: 10, color: Color(0xFFE1A100)),
+             )
+           ],
+        )
+      },
+      {
+        'title': '龙钱宝1号',
+        'icon': Icons.hexagon_outlined,
+        'overlayIcon': Icons.emoji_events, 
+        'overlayColor': const Color(0xFFE1A100),
+        'overlaySize': 14.0,
+        'overlayOffset': const Offset(0, 0),
+      },
+      {
+        'title': '龙钱宝2号',
+        'icon': Icons.home_outlined,
+        'overlayIcon': Icons.attach_money,
+        'overlayColor': const Color(0xFFE1A100),
+        'overlaySize': 14.0,
+        'overlayOffset': const Offset(0, 2),
+      },
+      {
+        'title': '速盈',
+        'isCustom': true,
+        'customBuilder': (context) => Stack(
+          alignment: Alignment.center,
+          children: [
+             const Icon(Icons.monetization_on_outlined, size: 30, color: Colors.black87), // Coin base
+             const Positioned(
+               right: -2,
+               bottom: -2,
+               child: Icon(Icons.bolt, size: 16, color: Color(0xFFE1A100)), // Lightning overlay
+             )
+          ],
+        ),
+      },
+      {
+        'title': '更多',
+        'icon': Icons.more_horiz_outlined, 
+        'overlayIcon': null,
+      },
+    ];
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          // 第一行按钮
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildIconButton('存款产品', Icons.account_balance),
-              _buildIconButton('理财产品', Icons.bar_chart, onTap: () {
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 25), // Increased horizontal padding to squeeze columns
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: menuItems.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 5,
+          mainAxisSpacing: 0, // Removed vertical spacing
+          crossAxisSpacing: 0, 
+          childAspectRatio: 1.0, // Square aspect ratio for very tight vertical layout
+        ),
+        itemBuilder: (context, index) {
+          final item = menuItems[index];
+          return GestureDetector(
+            onTap: () {
+              if (item['action'] == 'financial_product') {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const FinancialProductPage()),
                 );
-              }),
-              _buildIconButton('基金投资', Icons.show_chart),
-              _buildIconButton('保险', Icons.shield_outlined),
-              _buildIconButton('贵金属', Icons.monetization_on_outlined),
-            ],
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // 第二行按钮
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildSpecialIconButton('建行严选', Icons.diamond_outlined),
-              _buildSpecialIconButton('龙钱宝1号', Icons.monetization_on_outlined),
-              _buildSpecialIconButton('龙钱宝2号', Icons.home_outlined),
-              _buildSpecialIconButton('速盈', Icons.flash_on_outlined),
-              _buildSpecialIconButton('更多', Icons.more_horiz),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 我的关注区域
-  Widget _buildMyFocusSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            '我的关注',
-            style: TextStyle(
-              fontSize: 14,
-              // fontWeight: FontWeight.bold,
+              }
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Center vertically in cell
+              children: [
+                SizedBox(
+                  width: 36, 
+                  height: 36,
+                  child: item['isCustom'] == true
+                      ? item['customBuilder'](context)
+                      : Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(
+                              item['icon'],
+                              size: 30, 
+                              color: Colors.black87,
+                            ),
+                            if (item['overlayIcon'] != null)
+                              Positioned(
+                                left: item['overlayOffset']?.dx < 0 ? item['overlayOffset'].dx.abs() : null,
+                                right: item['overlayOffset']?.dx > 0 ? item['overlayOffset'].dx : null,
+                                top: item['overlayOffset']?.dy < 0 ? item['overlayOffset'].dy.abs() : null,
+                                bottom: item['overlayOffset']?.dy > 0 ? item['overlayOffset'].dy : null,
+                                child: item['overlayOffset'] == const Offset(0, 0) || item['overlayOffset'] == null
+                                  ? Center(child: Icon(item['overlayIcon'], size: item['overlaySize'], color: item['overlayColor']))
+                                  : Icon(item['overlayIcon'], size: item['overlaySize'], color: item['overlayColor']),
+                              ),
+                             if (item['title'] == '更多') 
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.black87, width: 1.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  width: 28,
+                                  height: 28,
+                                  child: const Icon(Icons.more_horiz, size: 18, color: Color(0xFFE1A100)),
+                                )
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 4), // Reduced text spacing
+                Text(
+                  item['title'],
+                  style: const TextStyle(
+                    fontSize: 12, 
+                    color: Color(0xFF333333),
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.2,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ),
-          Icon(Icons.chevron_right, color: Colors.grey.shade400),
-        ],
+          );
+        },
       ),
     );
   }
 
-  // 财富管理区域
-  Widget _buildWealthManagementSection() {
+  // 财富优选区域
+  Widget _buildWealthSelectionSection() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
+      margin: const EdgeInsets.only(top: 10),
+      color: Colors.white,
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '财富管理',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
+          // 标题行
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '资产配置',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    const Text(
-                      '点击一键配置',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5A623),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: const Text(
-                        '前往',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ),
-                  ],
+              const Text(
+                '财富优选',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  letterSpacing: 0.5, // Slight letter spacing
                 ),
               ),
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: Image.asset('assets/images/coin.png', 
-                              errorBuilder: (context, error, stackTrace) => 
-                              const Icon(Icons.monetization_on, size: 80, color: Color(0xFFF5A623))),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '养老规划',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+              Row(
+                children: [
+                  const Icon(Icons.favorite_border, size: 16, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    '我的关注',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
                     ),
-                    const SizedBox(height: 5),
-                    const Text(
-                      '提前规划 养老无忧',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5A623),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: const Text(
-                        '前往',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 100,
-                height: 100,
-                child: Image.asset('assets/images/elder.png', 
-                              errorBuilder: (context, error, stackTrace) => 
-                              const Icon(Icons.elderly, size: 80, color: Colors.blue)),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+          const SizedBox(height: 12),
 
-  // 财富直击区域
-  Widget _buildWealthDirectSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '财富直击',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 15),
-          
-          // 产品分类Tab
+          // TabBar
           SizedBox(
-            height: 40,
+            height: 30,
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
-              indicator: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.amber.shade700,
-                    width: 3.0,
-                  ),
-                ),
-              ),
-              labelColor: Colors.amber.shade700,
-              unselectedLabelColor: Colors.black,
-              labelStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
+              labelColor: const Color(0xFF333333),
+              unselectedLabelColor: const Color(0xFF666666),
+              labelStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+              unselectedLabelStyle: const TextStyle(fontSize: 15),
+              indicatorColor: Colors.transparent, // Remove default underline
+              dividerColor: Colors.transparent,
+              labelPadding: const EdgeInsets.only(right: 28), // Increased spacing
+              padding: EdgeInsets.zero,
               tabs: const [
                 Tab(text: '多享系列'),
-                Tab(text: '理财精选'),
-                Tab(text: '基金精选'),
-                Tab(text: '稳健优选'),
+                Tab(text: '零钱管理'),
+                Tab(text: '稳健投资'),
+                Tab(text: '追求回报'),
+                Tab(text: '保险保障'),
               ],
             ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // 日日享和周周享
-          Row(
-            children: [
-              Expanded(
-                child: _buildRateCard('日日享', '2.03%'),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: _buildRateCard('周周享', '1.96%'),
-              ),
-            ],
           ),
           
           const SizedBox(height: 15),
-          
-          // 月月享和年年享
-          Row(
-            children: [
-              Expanded(
-                child: _buildRateCard('月月享', '2.45%'),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: _buildRateCard('年年享', '3.48%'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
-  // 零钱投资广告区域
-  Widget _buildInvestmentAdSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      height: 100,
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '零钱投资好帮手',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    '轻松转入 灵活申赎',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    '基金有风险，投资需谨慎。(中国建设银行代销)',
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors.grey,
-                    ),
-                  ),
+          // 产品网格区域 (带背景)
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 20, 10, 20), // Top/Bottom padding for the background area
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFFFFF9EF), // Very light orange/cream
+                  Colors.white.withOpacity(0.5),
                 ],
               ),
+              borderRadius: BorderRadius.circular(12),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Container(
-              alignment: Alignment.centerRight,
-              child: const Icon(
-                Icons.credit_card,
-                color: Colors.blue,
-                size: 60,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: const Text(
-              '广告',
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-        ],
-      ),
-    );
-  }
-
-  // 人人需要四笔钱区域
-  Widget _buildFourMoneyTypesSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            '人人需要四笔钱',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.amber.shade700),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
+            child: Column(
               children: [
-                Icon(Icons.help_outline, size: 16, color: Colors.amber.shade700),
-                const SizedBox(width: 5),
-                Text(
-                  '不知道如何规划 去一键配置',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.amber.shade700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 快速入口选项
-  Widget _buildQuickEntryOptions() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      child: Row(
-        children: [
-          _buildQuickEntryButton('零钱管理', Colors.amber.shade700),
-          const SizedBox(width: 10),
-          _buildQuickEntryButton('稳健投资', Colors.blue.shade700),
-          const SizedBox(width: 10),
-          _buildQuickEntryButton('追求回报', Colors.purple.shade700),
-          const SizedBox(width: 10),
-          _buildQuickEntryButton('保险保障', Colors.green.shade700),
-        ],
-      ),
-    );
-  }
-
-  // 零钱区域提示
-  Widget _buildPocketMoneyHintSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: const Text(
-        '随时要用的钱在这里',
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
-        ),
-      ),
-    );
-  }
-
-  // 产品推荐
-  Widget _buildProductRecommendation() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15),
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text(
-                '建信现金添益A',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade100,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: const Text(
-                  '基金',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.amber,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    '1.6070%',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.orange,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  const Text(
-                    '7日年化收益率',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 30),
-              const Expanded(
-                child: Text(
-                  '货币基金 流动性管理优选',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 无边框图标按钮 (第一行)
-  Widget _buildIconButton(String label, IconData icon, {VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 65,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 50,
-              height: 50,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    color: Colors.black87,
-                    size: 28,
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    right: 10,
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFE1A100),
-                        shape: BoxShape.circle,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildProductCard(
+                        title: '日日享',
+                        tag: '按日申赎',
+                        yieldValue: '2.29',
+                        subText: '成立以来年化',
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 特殊图标按钮 (第二行)
-  Widget _buildSpecialIconButton(String label, IconData icon) {
-    return SizedBox(
-      width: 65,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 50,
-            height: 50,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // 图标 (没有边框)
-                Icon(
-                  icon,
-                  color: const Color(0xFFE1A100),
-                  size: 26,
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: _buildProductCard(
+                        title: '周周享',
+                        tag: '短期闲钱',
+                        yieldValue: '1.99',
+                        subText: '成立以来年化',
+                      ),
+                    ),
+                  ],
                 ),
-                // 右下角的黄色小圆点
-                Positioned(
-                  bottom: 5,
-                  right: 5,
-                  child: Icon(
-                    Icons.circle,
-                    color: const Color(0xFFE1A100),
-                    size: 8,
-                  ),
+                const SizedBox(height: 25), // Increased vertical spacing between rows
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildProductCard(
+                        title: '月月享',
+                        tag: '稳健投资',
+                        yieldValue: '2.33',
+                        subText: '成立以来年化',
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: _buildProductCard(
+                        title: '年年享',
+                        tag: '长线优选',
+                        yieldValue: '3.21',
+                        subText: '成立以来年化',
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  // 收益率卡片
-  Widget _buildRateCard(String title, String rate) {
+  Widget _buildProductCard({
+    required String title,
+    required String tag,
+    required String yieldValue,
+    required String subText,
+  }) {
+    // Shared styles
+    const Color tagBgColor = Color(0xFFFFF3E0); // Light orange bg for tag
+    const Color tagTextColor = Color(0xFFE69830); // Darker orange text for tag
+    const Color yieldColor = Color(0xFFFF8C00); // Main Orange
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+        // Title Row
+        Row(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF333333),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: tagBgColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                tag,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: tagTextColor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10), // Spacing between title and yield
+        // Yield Rate RichText
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: yieldValue,
+                style: const TextStyle(
+                  fontSize: 28, // Larger font for number
+                  fontWeight: FontWeight.w600, // Semi-bold but not too heavy
+                  color: yieldColor,
+                  fontFamily: 'Roboto', // Ensure number font looks clean
+                ),
+              ),
+              const TextSpan(
+                text: ' %',
+                style: TextStyle(
+                  fontSize: 14, // Smaller font for symbol
+                  fontWeight: FontWeight.w500,
+                  color: yieldColor,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 6), // Spacing between yield and subtitle
         Text(
-          rate,
+          subText,
           style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.orange.shade700,
-          ),
-        ),
-        const Text(
-          '成立以来年化',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
+            fontSize: 11,
+            color: Colors.grey[500],
+            height: 1.2,
           ),
         ),
       ],
     );
   }
+}
 
-  // 快速入口按钮
-  Widget _buildQuickEntryButton(String label, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: color, width: 2),
-          ),
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-} 
