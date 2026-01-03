@@ -85,7 +85,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Scaffold(
       backgroundColor: const Color(0xFFF2F7FC),
       body: _buildBody(),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _selectedIndex == 0 ? null : _buildBottomNavigationBar(),
     );
   }
 
@@ -101,75 +101,42 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildHomeContent() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter, // Gradient covers the whole scrollable area
-          colors: [_blueGradientTop, const Color(0xFFF2F7FC)],
-          stops: const [0.0, 0.4], // Blue top fades into background color
+    return Stack(
+      children: [
+        // Full screen static image
+        Positioned.fill(
+          child: Image.asset(
+            'assets/images/home_static_bg.jpg',
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          // 1. Top Search Bar (Pinned)
-          SliverAppBar(
-            pinned: true,
-            floating: false,
-            elevation: 0,
-            backgroundColor: Colors.transparent, 
-            flexibleSpace: Container(
-               decoration: const BoxDecoration(
-                 gradient: LinearGradient(
-                   begin: Alignment.topCenter,
-                   end: Alignment.bottomCenter,
-                   colors: [Color(0xFFD4E4FA), Color(0xFFEBF4FF)], // Subtle blue gradient for header
-                 ),
-               ),
-            ),
-            titleSpacing: 0,
-            toolbarHeight: 50,
-            title: _buildSearchBar(),
+        // Invisible touch target for "Wealth" button (Middle of bottom 5)
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 80, // Approximate height of bottom nav bar
+          child: Row(
+            children: [
+              Expanded(child: Container()), // Home
+              Expanded(child: Container()), // Credit Card
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = 2;
+                    });
+                  },
+                  child: Container(color: Colors.transparent),
+                ),
+              ), // Wealth
+              Expanded(child: Container()), // Life
+              Expanded(child: Container()), // Profile
+            ],
           ),
-
-          // 2. Top Content (Grid Menus, Banner)
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                _buildTopMenuGrid(),
-                _buildNotificationBar(),
-                _buildBanner(),
-              ],
-            ),
-          ),
-
-          // 3. Sticky Tab Bar
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _StickyTabBarDelegate(
-              child: Container(
-                color: const Color(0xFFF2F7FC), // Match page background
-                child: _buildTabBar(),
-              ),
-            ),
-          ),
-
-          // 4. Content Sections
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                _buildSectionWrapper(0, _buildWealthSection()),
-                _buildSectionWrapper(1, _buildPensionSection()),
-                _buildSectionWrapper(2, _buildDigitalRMBSection()),
-                _buildSectionWrapper(3, _buildHousingSection()),
-                _buildSectionWrapper(4, _buildDiscountSection()),
-                const SizedBox(height: 100), // Bottom padding
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

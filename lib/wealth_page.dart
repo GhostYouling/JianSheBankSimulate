@@ -169,7 +169,7 @@ class _WealthPageState extends State<WealthPage> with SingleTickerProviderStateM
                                     style: TextStyle(color: Colors.grey[400], fontSize: 13),
                                   ),
                                   Text(
-                                    '104,958.78',
+                                    '364,832.50',
                                     style: TextStyle(color: Colors.grey[400], fontSize: 13),
                                   ),
                                 ],
@@ -258,7 +258,7 @@ class _WealthPageState extends State<WealthPage> with SingleTickerProviderStateM
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             const Text(
-                              '¥ 104,959.15',
+                              '¥ 364,832.50',
                               style: TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
@@ -267,7 +267,7 @@ class _WealthPageState extends State<WealthPage> with SingleTickerProviderStateM
                               ),
                             ),
                             const Text(
-                              '- ¥ 39.03',
+                              '- ¥ 136.60',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,

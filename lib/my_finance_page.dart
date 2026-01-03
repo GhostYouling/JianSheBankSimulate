@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/product_detail_page.dart';
+import 'product_detail_page.dart';
 
 class MyFinancePage extends StatefulWidget {
   const MyFinancePage({super.key});

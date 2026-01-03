@@ -18,6 +18,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   // 状态变量
   int _selectedTabIndex = 1; // 默认选中"成立以来年化"
   int _selectedTimeRangeIndex = 3; // 默认选中"近3年"
+  bool _isExpanded = false; // 是否展开详情
 
   @override
   Widget build(BuildContext context) {
@@ -163,8 +164,61 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ],
           ),
           const SizedBox(height: 20),
-          Icon(Icons.keyboard_arrow_down, color: textGrey.withOpacity(0.5), size: 20),
-          const SizedBox(height: 15),
+          
+          if (!_isExpanded)
+            InkWell(
+              onTap: () {
+                setState(() {
+                  _isExpanded = true;
+                });
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                width: double.infinity,
+                child: Icon(Icons.keyboard_arrow_down, color: textGrey.withOpacity(0.5), size: 20),
+              ),
+            )
+          else
+            Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FA),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                children: [
+                   InkWell(
+                     onTap: () {
+                       setState(() {
+                         _isExpanded = false;
+                       });
+                     },
+                     child: Icon(Icons.keyboard_arrow_up, color: textGrey.withOpacity(0.5), size: 20),
+                   ),
+                   const SizedBox(height: 16),
+                   GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 2.8,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 8,
+                      padding: EdgeInsets.zero,
+                      children: [
+                          _buildDataGridItem('最新净值', '1.144098', color: redColor),
+                          _buildDataGridItem('净值日期', '2025/12/31'),
+                          _buildDataGridItem('成立以来年化收益率', '2.77%', color: redColor),
+                          _buildDataGridItem('可用份额', '317,989.0350'), // Using existing value
+                          _buildDataGridItem('交易账户', '6214***2009'),
+                          _buildDataGridItem('持仓盈亏(元)', '+12,732.61', isInfo: true), // Using existing value
+                      ],
+                   )
+                ],
+              ),
+            ),
+
+          if (!_isExpanded) const SizedBox(height: 15),
           const Divider(height: 1, color: Color(0xFFEEEEEE)),
           SizedBox(
             height: 48,
