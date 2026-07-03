@@ -101,42 +101,52 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildHomeContent() {
-    return Stack(
-      children: [
-        // Full screen static image
-        Positioned.fill(
-          child: Image.asset(
-            'assets/images/home_static_bg.jpg',
-            fit: BoxFit.cover,
-          ),
-        ),
-        // Invisible touch target for "Wealth" button (Middle of bottom 5)
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 80, // Approximate height of bottom nav bar
-          child: Row(
-            children: [
-              Expanded(child: Container()), // Home
-              Expanded(child: Container()), // Credit Card
-              Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 2;
-                    });
-                  },
-                  child: Container(color: Colors.transparent),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const double sourceWidth = 1080;
+        const double scrollSourceHeight = 5774;
+        const double navSourceHeight = 230;
+        final double scrollImageHeight = constraints.maxWidth * scrollSourceHeight / sourceWidth;
+        final double navHeight = constraints.maxWidth * navSourceHeight / sourceWidth;
+
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.only(bottom: navHeight),
+              child: SizedBox(
+                width: constraints.maxWidth,
+                height: scrollImageHeight,
+                child: Image.asset(
+                  'assets/images/home_static_scroll.jpg',
+                  fit: BoxFit.fill,
                 ),
-              ), // Wealth
-              Expanded(child: Container()), // Life
-              Expanded(child: Container()), // Profile
-            ],
-          ),
-        ),
-      ],
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: navHeight,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapUp: (details) {
+                  final double x = details.localPosition.dx;
+                  final bool isWealthTab = x > constraints.maxWidth * 0.40 &&
+                      x < constraints.maxWidth * 0.60;
+                  if (isWealthTab) {
+                    setState(() => _selectedIndex = 2);
+                  }
+                },
+                child: Image.asset(
+                  'assets/images/home_static_nav.jpg',
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

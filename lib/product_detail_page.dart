@@ -33,6 +33,27 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     1.1532, 1.1547, 1.1541, 1.1556, 1.1572, 1.1586,
   ];
 
+  static const List<double> _annualizedPoints = [
+    3.05, 3.07, 3.04, 3.05, 3.03, 3.03, 3.02, 3.00, 3.03, 2.96,
+    2.92, 2.91, 2.92, 2.90, 2.93, 2.89, 2.94, 2.92, 2.96, 2.99,
+    3.03, 3.04, 3.01, 3.00, 2.96, 2.99, 2.94, 2.88, 2.84, 2.87,
+    2.91, 2.90, 2.89, 2.90, 2.91, 2.89, 2.90, 2.89, 2.91, 2.90,
+    2.86, 2.87, 2.84, 2.83, 2.81, 2.78, 2.80, 2.79, 2.81, 2.84,
+    2.83, 2.79, 2.78, 2.75, 2.76, 2.78, 2.80, 2.79, 2.82, 2.81,
+    2.80, 2.77, 2.76, 2.79, 2.81, 2.82, 2.81, 2.83, 2.80, 2.79,
+  ];
+
+  static const List<double> _assetPoints = [
+    12600000000, 15100000000, 17600000000, 18400000000, 18100000000,
+    17400000000, 15600000000, 13900000000, 14000000000, 13800000000,
+    14200000000, 14500000000, 2600000000, 14600000000, 15400000000,
+    15800000000, 16000000000, 15600000000, 14700000000, 14100000000,
+    13800000000, 13700000000, 13900000000, 13500000000, 13600000000,
+    13400000000, 13100000000, 12800000000, 12400000000, 11900000000,
+    11500000000, 11100000000, 10800000000, 10500000000, 10300000000,
+    10100000000, 9950000000, 9820000000, 9700000000, 9586741800.81,
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -258,7 +279,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             children: [
               _buildStatusStep('下一个交易日', '卖出'),
               const SizedBox(width: 36),
-              _buildStatusStep('07/07', '资金兑付到账'),
+              _buildStatusStep('07/08', '资金兑付到账'),
               const Spacer(),
               const Padding(
                 padding: EdgeInsets.only(top: 14),
@@ -303,9 +324,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       children: [
                         const TextSpan(text: '本产品设置最短持有期，持有120天的份额可'),
                         TextSpan(text: '按日赎回', style: TextStyle(color: mainBlue)),
-                        TextSpan(text: '\n07月03日17:00', style: TextStyle(color: mainBlue)),
+                        TextSpan(text: '\n07月06日17:00', style: TextStyle(color: mainBlue)),
                         const TextSpan(text: '前赎回，预计'),
-                        TextSpan(text: '07月07日', style: TextStyle(color: mainBlue)),
+                        TextSpan(text: '07月08日', style: TextStyle(color: mainBlue)),
                         const TextSpan(text: '资金自动兑付到账'),
                       ],
                     ),
@@ -338,6 +359,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget _buildNetValueCard() {
+    final _ChartSpec spec = _currentChartSpec;
     return _card(
       padding: const EdgeInsets.fromLTRB(12, 12, 10, 14),
       child: Column(
@@ -355,12 +377,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('2023-09-02', style: TextStyle(fontSize: 12, color: Color(0xFF3D4652))),
+              Text(spec.date, style: const TextStyle(fontSize: 12, color: Color(0xFF3D4652))),
               Row(
-                children: const [
-                  Text('·', style: TextStyle(fontSize: 20, color: Colors.black, height: 0.8)),
-                  SizedBox(width: 2),
-                  Text('单位净值1.086824', style: TextStyle(fontSize: 11.5, color: Color(0xFF242933))),
+                children: [
+                  Text('·', style: TextStyle(fontSize: 20, color: mainBlue, height: 0.8)),
+                  const SizedBox(width: 2),
+                  Text(spec.legend, style: const TextStyle(fontSize: 11.5, color: Color(0xFF242933))),
                 ],
               ),
             ],
@@ -372,11 +394,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             child: CustomPaint(
               painter: ChartPainter(
                 lineColor: mainBlue,
-                dataPoints: _netValuePoints,
-                minY: 1.0025,
-                maxY: 1.2383,
-                xLabels: const ['2023-07-02', '2026-06-30'],
-                yLabels: const ['1.2383', '1.1911', '1.1440', '1.0968', '1.0497', '1.0025'],
+                dataPoints: spec.dataPoints,
+                minY: spec.minY,
+                maxY: spec.maxY,
+                xLabels: spec.xLabels,
+                yLabels: spec.yLabels,
               ),
             ),
           ),
@@ -400,6 +422,100 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               Icon(Icons.keyboard_arrow_down, size: 17, color: mainBlue),
             ],
           ),
+          if (_selectedTabIndex == 1) ...[
+            const SizedBox(height: 22),
+            _buildAnnualizedHistoryTable(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  _ChartSpec get _currentChartSpec {
+    switch (_selectedTabIndex) {
+      case 1:
+        return const _ChartSpec(
+          date: '2026-01-19',
+          legend: '成立以来年化2.80%',
+          dataPoints: _annualizedPoints,
+          minY: 2.44,
+          maxY: 3.37,
+          xLabels: ['2024-04-25', '2026-07-01'],
+          yLabels: ['3.37%', '3.18%', '3.00%', '2.81%', '2.63%', '2.44%'],
+        );
+      case 2:
+        return const _ChartSpec(
+          date: '2026-07-01',
+          legend: '累计净值1.158962',
+          dataPoints: _netValuePoints,
+          minY: 1.0029,
+          maxY: 1.2381,
+          xLabels: ['2023-07-03', '2026-07-01'],
+          yLabels: ['1.238100', '1.191060', '1.144020', '1.096980', '1.049940', '1.002900'],
+        );
+      case 3:
+        return const _ChartSpec(
+          date: '2026-07-01',
+          legend: '资产净值9586741800.81',
+          dataPoints: _assetPoints,
+          minY: -18392433477.18,
+          maxY: 36784866954.36,
+          xLabels: ['2023-07-03', '2026-07-01'],
+          yLabels: [
+            '36784866954.36',
+            '25749406868.05',
+            '14713946781.74',
+            '3678486695.44',
+            '-7356973390.87',
+            '-18392433477.18',
+          ],
+        );
+      default:
+        return const _ChartSpec(
+          date: '2023-09-02',
+          legend: '单位净值1.086824',
+          dataPoints: _netValuePoints,
+          minY: 1.0025,
+          maxY: 1.2383,
+          xLabels: ['2023-07-02', '2026-06-30'],
+          yLabels: ['1.2383', '1.1911', '1.1440', '1.0968', '1.0497', '1.0025'],
+        );
+    }
+  }
+
+  Widget _buildAnnualizedHistoryTable() {
+    const rows = [
+      ('2026/07/01', '2.79%'),
+      ('2026/06/30', '2.80%'),
+      ('2026/06/29', '2.80%'),
+      ('2026/06/28', '2.79%'),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+      color: const Color(0xFFFCFCFD),
+      child: Column(
+        children: [
+          Row(
+            children: const [
+              Text('日期', style: TextStyle(fontSize: 14, color: Color(0xFF9A9A9A))),
+              Spacer(),
+              Text('成立以来年化', style: TextStyle(fontSize: 14, color: Color(0xFF9A9A9A))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: Color(0xFFEDEDED)),
+          for (final row in rows)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 13),
+              child: Row(
+                children: [
+                  Text(row.$1, style: const TextStyle(fontSize: 18, color: Color(0xFF1E1E1E))),
+                  const Spacer(),
+                  Text(row.$2, style: const TextStyle(fontSize: 22, color: Colors.black, fontWeight: FontWeight.w500)),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -818,6 +934,26 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 }
 
+class _ChartSpec {
+  final String date;
+  final String legend;
+  final List<double> dataPoints;
+  final double minY;
+  final double maxY;
+  final List<String> xLabels;
+  final List<String> yLabels;
+
+  const _ChartSpec({
+    required this.date,
+    required this.legend,
+    required this.dataPoints,
+    required this.minY,
+    required this.maxY,
+    required this.xLabels,
+    required this.yLabels,
+  });
+}
+
 class ChartPainter extends CustomPainter {
   final Color lineColor;
   final List<double> dataPoints;
@@ -837,7 +973,20 @@ class ChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const double leftPadding = 42;
+    final TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
+    double maxLabelWidth = 0;
+    for (final label in yLabels) {
+      textPainter.text = TextSpan(
+        text: label,
+        style: const TextStyle(color: Color(0xFFADB4BE), fontSize: 10.5),
+      );
+      textPainter.layout();
+      if (textPainter.width > maxLabelWidth) {
+        maxLabelWidth = textPainter.width;
+      }
+    }
+
+    final double leftPadding = maxLabelWidth + 14;
     const double topPadding = 4;
     const double rightPadding = 4;
     const double bottomPadding = 28;
@@ -852,8 +1001,6 @@ class ChartPainter extends CustomPainter {
       ..color = const Color(0xFFEFF2F6)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
-
-    final TextPainter textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     for (int i = 0; i < yLabels.length; i++) {
       final double y = plot.top + (plot.height / (yLabels.length - 1)) * i;
