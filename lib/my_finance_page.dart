@@ -192,7 +192,7 @@ class _MyFinancePageState extends State<MyFinancePage> {
           const Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '364,832.50',
+              '371,598.43',
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
@@ -213,9 +213,9 @@ class _MyFinancePageState extends State<MyFinancePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAssetInfoItem('持仓盈亏(元)', '+12,745.50'),
+                    _buildAssetInfoItem('持仓盈亏(元)', '+17,598.43'),
                     const SizedBox(height: 15),
-                    _buildAssetInfoItem('累计收益(元)', '+14,075.50'),
+                    _buildAssetInfoItem('累计收益(元)', '+18,928.43'),
                   ],
                 ),
               ),
@@ -224,7 +224,7 @@ class _MyFinancePageState extends State<MyFinancePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildAssetInfoItem('持仓份额(份)', '317989.0350', showInfoIcon: false),
+                    _buildAssetInfoItem('持仓份额(份)', '319626.5188', showInfoIcon: false),
                     const SizedBox(height: 15),
                     _buildAssetInfoItem('昨日收益(元)', '-136.60'),
                   ],
@@ -433,8 +433,8 @@ class _MyFinancePageState extends State<MyFinancePage> {
       children: [
         _buildProductItem(
           '龙鑫固收类最低持有120\n天（代销建信理财）',
-          '363,819.61',
-          '+12,732.61',
+          '370,585.54',
+          '+17,585.54',
           '2009',
           isFirst: true,
         ),
@@ -657,5 +657,4 @@ class _MyFinancePageState extends State<MyFinancePage> {
     );
   }
 }
-
 
